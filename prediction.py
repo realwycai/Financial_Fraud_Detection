@@ -7,23 +7,10 @@ e-mail: wycai@pku.edu.cn
 from imblearn.over_sampling import SMOTE
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from statsmodels.stats.outliers_influence import variance_inflation_factor
 import numpy as np
 import pandas as pd
 
-from metrics import metrices_opt
-from factors import data_preparation
-
-
-
-def reduce_multicollinearity(data):
-    idxs = []
-    l = data.shape[1]
-    VIF = [variance_inflation_factor(data.values, idx) for idx in range(l)]
-    while max(VIF) > 100:
-        idxs.append(np.argmax(VIF))
-        VIF = [variance_inflation_factor(data.values, idx) for idx in range(l) if idx not in idxs]
-    return data.iloc[:, [idx for idx in range(l) if idx not in idxs]]
+from metrics import *
 
 
 if __name__ == '__main__':
@@ -50,7 +37,7 @@ if __name__ == '__main__':
     # metrics(y_test, lr.predict(X_test))
     y_train_predict_prob = lr.predict_proba(X_train)[:, 1]
     y_test_predict_prob = lr.predict_proba(X_test)[:, 1]
-    metrices_opt(y_train, y_test, y_train_predict_prob, y_test_predict_prob)
+    metrics_plot(y_train, y_test, y_train_predict_prob, y_test_predict_prob)
 
     rf = RandomForestClassifier()
     rf.fit(X_train, y_train)
@@ -59,4 +46,4 @@ if __name__ == '__main__':
     # metrics(y_test, rf.predict(X_test))
     y_train_predict_prob = rf.predict_proba(X_train)[:, 1]
     y_test_predict_prob = rf.predict_proba(X_test)[:, 1]
-    metrices_opt(y_train, y_test, y_train_predict_prob, y_test_predict_prob)
+    metrics_plot(y_train, y_test, y_train_predict_prob, y_test_predict_prob)

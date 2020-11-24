@@ -152,19 +152,7 @@ def current_period_factor_calculation(bs_data: pd.DataFrame, is_data: pd.DataFra
     return_data['INDUSTRY_CSRC12_N'] = bs_data.iloc[-1,]['INDUSTRY_CSRC12_N']
     return return_data
 
-def industry_match(all_factor, violation_factor):
-    all_factor_final = pd.DataFrame()
-    violation_info = violation_factor[['violation_year', 'INDUSTRY_CSRC12_N']].drop_duplicates()
-    print('各年份匹配行业的数量')
-    for i in range(violation_info.shape[0]):
-        tmp = all_factor.loc[(all_factor.violation_year==violation_info.iloc[i,]['violation_year'])&
-                                (all_factor.INDUSTRY_CSRC12_N==violation_info.iloc[i,]['INDUSTRY_CSRC12_N']),]
-        tmp = tmp.sort_values(by='账面市值', ascending=False).iloc[:10,]
-        all_factor_final = all_factor_final.append(tmp)
-        print(violation_info.iloc[i,]['violation_year'], violation_info.iloc[i,]['INDUSTRY_CSRC12_N'], len(tmp))
-    return all_factor_final
-
-def data_preparation():
+def factors_preparation():
     os.chdir('./data/全市场作为对照样本相应的数据')
     violation_bs = pd.read_excel('violation_bs.xlsx')
     violation_bs = violation_bs.sort_values(by=['symbol','sheet_year']).groupby(by=['symbol', 'violation_year'])
@@ -179,13 +167,13 @@ def data_preparation():
     all_industry = all_industry.loc[~all_industry['INDUSTRY_CSRC12_N'].isin(['金融、保险业', '金融业']),]
     all_industry = all_industry.loc[~all_industry['symbol'].isin(violation_bs['symbol'].unique()),]
     all_bs = pd.read_excel('all_bs.xlsx')
-    all_bs = all_bs.merge(all_industry, how='left', on=['symbol', 'sheet_year'])
+    all_bs = all_bs.merge(all_industry, how='inner', on=['symbol', 'sheet_year'])
     all_bs = all_bs.sort_values(by=['symbol','sheet_year']).groupby(by=['symbol', 'violation_year'])
     all_is = pd.read_excel('all_is.xlsx')
-    all_is = all_is.merge(all_industry, how='left', on=['symbol', 'sheet_year'])
+    all_is = all_is.merge(all_industry, how='inner', on=['symbol', 'sheet_year'])
     all_is = all_is.sort_values(by=['symbol','sheet_year']).groupby(by=['symbol', 'violation_year'])
     all_cs = pd.read_excel('all_cs.xlsx')
-    all_cs = all_cs.merge(all_industry, how='left', on=['symbol', 'sheet_year'])
+    all_cs = all_cs.merge(all_industry, how='inner', on=['symbol', 'sheet_year'])
     all_cs = all_cs.sort_values(by=['symbol','sheet_year']).groupby(by=['symbol', 'violation_year'])
     all_other = pd.read_excel('all_other.xlsx')
     all_other = all_other.sort_values(by=['symbol', 'sheet_year']).groupby(by=['symbol', 'violation_year'])
@@ -215,14 +203,10 @@ def data_preparation():
 
     violation_factor['Y'] = 1
     all_factor['Y'] = 0
-    all_factor_1 = all_factor.loc[(~all_factor.isna()).all(axis=1),]
-    all_factor_final = industry_match(all_factor_1, violation_factor)
 
-    data = pd.concat([all_factor_final, violation_factor], axis=0, ignore_index=True).drop('账面市值', axis=1)
-    return violation_factor, all_factor, data
+    return violation_factor, all_factor
 
 if __name__ == '__main__':
-    violation_factors, all_factors, factors_matched = data_preparation()
+    violation_factors, all_factors = factors_preparation()
     violation_factors.to_excel('factors/violation_factors.xlsx', index=False)
     all_factors.to_excel('factors/all_factors.xlsx', index=False)
-    factors_matched.to_excel('factors/factors_matched.xlsx', index=False)
