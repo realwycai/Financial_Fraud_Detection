@@ -28,14 +28,14 @@ def current_period_factor_calculation(bs_data: pd.DataFrame, is_data: pd.DataFra
     is_data['FIN_EXP_IS'].fillna(value=0, inplace=True)
     bs_data['TOT_NON_CUR_LIAB'].fillna(value=0, inplace=True) # 长期负债可能为0
     bs_data['DVD_PAYABLE'].fillna(value=0, inplace=True) # 应发股利可能为0
-    other_data['股票月换手率波动率'].fillna(value=0, inplace=True)
-    other_data['H5指数'].fillna(value=0, inplace=True)
-    other_data['机构投资者持股比例'].fillna(value=0, inplace=True)
+    # other_data['股票月换手率波动率'].fillna(value=0, inplace=True)
+    # other_data['H5指数'].fillna(value=0, inplace=True)
+    # other_data['机构投资者持股比例'].fillna(value=0, inplace=True)
     other_data['是否再融资'].fillna(value=0, inplace=True)
     other_data['关联交易金额'].fillna(value=0, inplace=True)
-    other_data['监事会人数'].fillna(value=0, inplace=True)
-    other_data['Z指数'].fillna(value=0, inplace=True)
-    other_data['是否非标准审计意见'].fillna(value=0, inplace=True)
+    # other_data['监事会人数'].fillna(value=0, inplace=True)
+    # other_data['Z指数'].fillna(value=0, inplace=True)
+    # other_data['是否非标准审计意见'].fillna(value=0, inplace=True)
     other_data['国有股比例'].fillna(value=0, inplace=True)
 
     static_data = bs_data.iloc[1:,].loc[:, ['symbol', 'sheet_year', 'violation_year']].copy(deep=True)
@@ -142,16 +142,16 @@ def current_period_factor_calculation(bs_data: pd.DataFrame, is_data: pd.DataFra
         static_data['会计师事务所是否变更'] = np.array([0, 0])
     static_data['国有股比例'] = other_data.iloc[1:, ]['国有股比例'].values
 
-    for j in range(static_data.shape[1]):
-        try:
-            if np.isinf(static_data.iloc[1, j]):
-                static_data.iloc[1, j] = 0
-        except Exception:
-            pass
+    # for j in range(static_data.shape[1]):
+    #     try:
+    #         if np.isinf(static_data.iloc[1, j]):
+    #             static_data.iloc[1, j] = 0
+    #     except Exception:
+    #         pass
 
     return_data = static_data.iloc[1,].append(dynamic_data)
     return_data['账面市值'] = bs_data.iloc[-1,]['TOT_ASSETS']
-    return_data['INDUSTRY_CSRC12_N'] = bs_data.iloc[-1,]['INDUSTRY_CSRC12_N']
+    return_data['INDUSTRY_CITIC'] = bs_data.iloc[-1,]['INDUSTRY_CITIC']
     return return_data
 
 def factors_preparation():
@@ -166,8 +166,6 @@ def factors_preparation():
     violation_other = violation_other.sort_values(by=['symbol', 'sheet_year']).groupby(by=['symbol', 'violation_year'])
 
     all_industry = pd.read_excel('stock_all_symbol_industry.xlsx')
-    # all_industry = all_industry.loc[~all_industry['INDUSTRY_CSRC12_N'].isin(['金融、保险业', '金融业']),]
-    # all_industry = all_industry.loc[~all_industry['symbol'].isin(violation_bs['symbol'].unique()),]
     all_bs = pd.read_excel('all_bs.xlsx')
     all_bs = all_bs.merge(all_industry, how='left', on=['symbol', 'sheet_year'])
     all_bs = all_bs.sort_values(by=['symbol','sheet_year']).groupby(by=['symbol', 'violation_year'])
