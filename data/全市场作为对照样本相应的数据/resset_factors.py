@@ -7,8 +7,8 @@ e-mail: wycai@pku.edu.cn
 import os
 import pandas as pd
 import numpy as np
-from multiprocessing import Pool, cpu_count
 
+from path import *
 
 def bs_check():
     m = 0
@@ -88,7 +88,7 @@ def cs_check():
 
 
 def wind_violation_data_update():
-    os.chdir('./RESSET数据库')
+    os.chdir(resset_path)
     bs_data = pd.read_excel('资产负债表.xls')
     bs_data['symbol'] = bs_data['A股股票代码_A_StkCd'].apply(
         lambda x: str(x).zfill(6) + '.SZ' if str(x).zfill(6)[0] in ['0', '3'] else str(x).zfill(6) + '.SH')
@@ -133,7 +133,7 @@ def wind_violation_data_update():
     all_is = pd.read_excel('all_is_wind.xlsx')
     all_cs = pd.read_excel('all_cs_wind.xlsx')
 
-    os.chdir('../')
+    os.chdir(data_path)
     violation = pd.read_excel('violation_symbol_industry.xlsx')
     violation_bs = violation.merge(all_bs, on = ['symbol', 'sheet_year'], how='inner')
     assert len(violation_bs) == len(violation)
@@ -290,10 +290,11 @@ def wind_violation_data_update():
 
 
 def other_factors_build():
+    os.chdir(data_path)
     violation = pd.read_excel('violation_symbol_industry.xlsx')
     all = pd.read_excel('stock_all_symbol_industry.xlsx')
 
-    os.chdir('./RESSET数据库')
+    os.chdir(resset_path)
     data1 = pd.read_excel('关联交易.xls')
     data1 = data1[data1.年末标识_YrFlg == 1]
     data1['symbol'] = data1['A股股票代码_A_StkCd'].apply(
@@ -401,19 +402,19 @@ def other_factors_build():
     all_other = all_other.merge(data8, on=['symbol', 'sheet_year'], how='left')
 
 
-    os.chdir('../')
+    os.chdir(data_path)
     violation_other.to_excel('violation_other.xlsx', index=False)
     all_other.to_excel('all_other.xlsx', index=False)
 
 def wind_all_data_update():
-    os.chdir('Wind数据库')
+    os.chdir(wind_path)
     all_bs = pd.read_excel('all_bs_wind.xlsx')
     all_cs = pd.read_excel('all_cs_wind.xlsx')
     all_is = pd.read_excel('all_is_wind.xlsx')
-    os.chdir('../')
+    os.chdir(data_path)
     all_other = pd.read_excel('all_other.xlsx')
 
-    all_violation_year = all_bs[['symbol', 'sheet_year']].copy(deep=True)
+    all_violation_year = pd.read_excel('stock_all_symbol_industry.xlsx')[['symbol', 'sheet_year']]
     all_violation_year['violation_year'] = all_violation_year['sheet_year']
     all_violation_year['sheet_year_0'] = all_violation_year['violation_year']
     all_violation_year['sheet_year_1'] = all_violation_year['violation_year'] - 1

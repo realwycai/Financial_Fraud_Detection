@@ -7,7 +7,7 @@ e-mail: wycai@pku.edu.cn
 import pandas as pd
 import numpy as np
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-
+from path import *
 
 def reduce_multicollinearity(data: pd.DataFrame) -> pd.DataFrame:
     idxs = []
@@ -39,7 +39,7 @@ def industry_match(all_factor: pd.DataFrame, violation_factor: pd.DataFrame) -> 
     return all_factor_final
 
 if __name__ == '__main__':
-    all_factors = pd.read_excel('./data/全市场作为对照样本相应的数据/all_factors.xlsx')
-    violation_factors = pd.read_excel('./data/全市场作为对照样本相应的数据/violation_factors.xlsx')
+    all_factors = pd.read_excel(factors_path+'/all_factors.xlsx')
+    violation_factors = pd.read_excel(factors_path+'/violation_factors.xlsx')
     factors_matched = factors_match(all_factors, violation_factors)
-    factors_matched.to_excel('./data/全市场作为对照样本相应的数据/factors_matched.xlsx')
+    factors_matched.to_excel(factors_path+'/factors_matched.xlsx')

@@ -9,6 +9,8 @@ import pandas as pd
 import numpy as np
 from multiprocessing import Pool, cpu_count
 
+from path import *
+
 def current_period_factor_calculation(bs_data: pd.DataFrame, is_data: pd.DataFrame, cs_data: pd.DataFrame, other_data: pd.DataFrame) -> pd.DataFrame:
     return_data = pd.DataFrame()
     bs_data = bs_data.copy(deep=True)
@@ -153,7 +155,7 @@ def current_period_factor_calculation(bs_data: pd.DataFrame, is_data: pd.DataFra
     return return_data
 
 def factors_preparation():
-    os.chdir('./data/全市场作为对照样本相应的数据')
+    os.chdir(data_path)
     violation_bs = pd.read_excel('violation_bs.xlsx')
     violation_bs = violation_bs.sort_values(by=['symbol','sheet_year']).groupby(by=['symbol', 'violation_year'])
     violation_is = pd.read_excel('violation_is.xlsx')
@@ -164,16 +166,16 @@ def factors_preparation():
     violation_other = violation_other.sort_values(by=['symbol', 'sheet_year']).groupby(by=['symbol', 'violation_year'])
 
     all_industry = pd.read_excel('stock_all_symbol_industry.xlsx')
-    all_industry = all_industry.loc[~all_industry['INDUSTRY_CSRC12_N'].isin(['金融、保险业', '金融业']),]
-    all_industry = all_industry.loc[~all_industry['symbol'].isin(violation_bs['symbol'].unique()),]
+    # all_industry = all_industry.loc[~all_industry['INDUSTRY_CSRC12_N'].isin(['金融、保险业', '金融业']),]
+    # all_industry = all_industry.loc[~all_industry['symbol'].isin(violation_bs['symbol'].unique()),]
     all_bs = pd.read_excel('all_bs.xlsx')
-    all_bs = all_bs.merge(all_industry, how='inner', on=['symbol', 'sheet_year'])
+    all_bs = all_bs.merge(all_industry, how='left', on=['symbol', 'sheet_year'])
     all_bs = all_bs.sort_values(by=['symbol','sheet_year']).groupby(by=['symbol', 'violation_year'])
     all_is = pd.read_excel('all_is.xlsx')
-    all_is = all_is.merge(all_industry, how='inner', on=['symbol', 'sheet_year'])
+    all_is = all_is.merge(all_industry, how='left', on=['symbol', 'sheet_year'])
     all_is = all_is.sort_values(by=['symbol','sheet_year']).groupby(by=['symbol', 'violation_year'])
     all_cs = pd.read_excel('all_cs.xlsx')
-    all_cs = all_cs.merge(all_industry, how='inner', on=['symbol', 'sheet_year'])
+    all_cs = all_cs.merge(all_industry, how='left', on=['symbol', 'sheet_year'])
     all_cs = all_cs.sort_values(by=['symbol','sheet_year']).groupby(by=['symbol', 'violation_year'])
     all_other = pd.read_excel('all_other.xlsx')
     all_other = all_other.sort_values(by=['symbol', 'sheet_year']).groupby(by=['symbol', 'violation_year'])
@@ -208,5 +210,5 @@ def factors_preparation():
 
 if __name__ == '__main__':
     violation_factors, all_factors = factors_preparation()
-    violation_factors.to_excel('factors/violation_factors.xlsx', index=False)
-    all_factors.to_excel('factors/all_factors.xlsx', index=False)
+    violation_factors.to_excel(factors_path + '/violation_factors.xlsx', index=False)
+    all_factors.to_excel(factors_path + '/all_factors.xlsx', index=False)

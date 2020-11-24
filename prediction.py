@@ -11,11 +11,10 @@ import numpy as np
 import pandas as pd
 
 from metrics import *
-
+from path import *
 
 if __name__ == '__main__':
-    # violation_factor, all_factor, data = data_preparation()
-    data = pd.read_excel('./data/全市场作为对照样本相应的数据/factors/factors_matched.xlsx')
+    data = pd.read_excel(factors_path+'/factors_matched.xlsx')
     X_train = data.loc[(data.violation_year >= 2007)&(data.violation_year <= 2015), ~data.columns.isin(['Y', 'symbol', 'sheet_year', 'violation_year', 'INDUSTRY_CSRC12_N'])]
     # X_train = reduce_multicollinearity(X_train)
     X_test = data.loc[data.violation_year >= 2016, ~data.columns.isin(['Y', 'symbol', 'sheet_year', 'violation_year', 'INDUSTRY_CSRC12_N'])]
