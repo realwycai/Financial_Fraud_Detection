@@ -21,7 +21,7 @@ def metrics(actual, predict):
 
     print('recall_score', recall_score(actual, predict))
 
-def metrices_opt(y_train, y_test, y_train_predict_prob, y_test_predict_prob, step: float = 0.02, start:float = 0.1, end:float = 1., thres:float = None):
+def metrices_opt(y_train, y_test, y_train_predict_prob, y_test_predict_prob, step: float = 0.02, start:float = 0., end:float = 1., thres:float = None):
     f1_res = {}
     if thres:
         thres_opt = thres
@@ -40,6 +40,7 @@ def metrices_opt(y_train, y_test, y_train_predict_prob, y_test_predict_prob, ste
     print('\n')
 
 def __metrics_plot(thres_range, f1s, precisions, recalls, accuracys, roc, thres_opt, fpr, tpr, type):
+    plt.close()
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
     axes = axes.flatten()
     # fig.tight_layout(pad=7.)
@@ -79,7 +80,7 @@ def metrics_plot(y_train, y_test, y_train_predict_prob, y_test_predict_prob, ste
         if not precision:
             precisions.append(np.nan)
         else:
-            precisions.append(precisions)
+            precisions.append(precision)
         recall = recall_score(y_train, y_train_predict)
         if not recall:
             recalls.append(np.nan)
@@ -104,7 +105,7 @@ def metrics_plot(y_train, y_test, y_train_predict_prob, y_test_predict_prob, ste
         if not precision:
             precisions.append(np.nan)
         else:
-            precisions.append(precisions)
+            precisions.append(precision)
         recall = recall_score(y_test, y_test_predict)
         if not recall:
             recalls.append(np.nan)
